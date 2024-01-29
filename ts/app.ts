@@ -58,18 +58,20 @@ function skracenica(): void {
 function zatvoriPorudzbinu(): void {
     skracenica();
     const p = document.getElementById('ispis');
-    p.innerHTML = `
-    Porudzbina broj: ${otvorenaPorudzbina.id}
-    // 			Klijent: ${otvorenaPorudzbina.imeKlijenta}
-    // 			Datum: ${otvorenaPorudzbina.datum}
-    //          Status: ${otvorenaPorudzbina.status}
-    // 			Naručeno:
-    // 			 ${otvorenaPorudzbina.stavke}
-    // 		
-    // 			
-    
-    // 			Ukupna za naplatu: 2720
-    `;
+    let cena:number = 0;
+    let out = ` 
+        Porudzbina broj: ${otvorenaPorudzbina.id} <br>
+        Klijent: ${otvorenaPorudzbina.imeKlijenta} <br>
+        Datum: ${otvorenaPorudzbina.datum} <br>
+        Naručeno:<br>`;
+    for(let i = 0; i < otvorenaPorudzbina.stavke.length; i++) {
+        cena += otvorenaPorudzbina.stavke[i].stavkaJelovnika.cena * otvorenaPorudzbina.stavke[i].kolicina;
+        out += `
+            ${otvorenaPorudzbina.stavke[i].stavkaJelovnika.naziv} x${otvorenaPorudzbina.stavke[i].kolicina}<br>
+        `;
+    }
+    out += `Ukupna za naplatu:<br>${cena}din`;
+    p.innerHTML += out;
     otvorenaPorudzbina = null;
 }
 
@@ -77,14 +79,6 @@ function otkaziPorudzbinu(): void {
     otvorenaPorudzbina.status = 'Otkazana';
     skracenica();
 }
-
-// Implementirati funkciju otkaziPorudzbinu.
-// 		-	nema parametre
-// 		-	nema povratnu vrednost
-
-// 		Menja status promenljive otkaziPorudzbinu na "Otkazana"
-// 		Krije, omogucava, i resetuje vrednost pormenljive kao i metoda zatvoriPorudzbinu.
-// 		Tj. radi isto kao i metoda zatvoriPorudzbinu osim ispisa racuna.
 
 
 

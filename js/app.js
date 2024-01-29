@@ -247,7 +247,7 @@ var Restoran = /** @class */ (function () {
         var out = '';
         for (var i = 0; i < this._jelovnik.length; i++) {
             var spanJelovnik = this._jelovnik[i];
-            out = "\n            <li class=\"list-group-item list-group-item-action d-flex justify-content-between align-items-start\" onclick=\"clickedMenu(".concat(spanJelovnik.id, ")\">\n                <div class=\"ms-2 me-auto fw-bold\"> ").concat(spanJelovnik.naziv, " ").concat(spanJelovnik.cena, "</div>\n                <span class=\"badge bg-primary rounded-pill\" id=\"spanJelovnik").concat(spanJelovnik.id, "\"></span>\n            </li>\n            ");
+            out += "\n            <li class=\"list-group-item list-group-item-action d-flex justify-content-between align-items-start\" onclick=\"clickedMenu(".concat(spanJelovnik.id, ")\">\n                <div class=\"ms-2 me-auto fw-bold\"> ").concat(spanJelovnik.naziv, " ").concat(spanJelovnik.cena, "</div>\n                <span class=\"badge bg-primary rounded-pill\" id=\"spanJelovnik").concat(spanJelovnik.id, "\"></span>\n            </li>\n            ");
         }
         document.getElementById('listajelovnik').innerHTML = out;
     };
@@ -425,19 +425,20 @@ function skracenica() {
 function zatvoriPorudzbinu() {
     skracenica();
     var p = document.getElementById('ispis');
-    p.innerHTML = "\n    Porudzbina broj: ".concat(otvorenaPorudzbina.id, "\n    // \t\t\tKlijent: ").concat(otvorenaPorudzbina.imeKlijenta, "\n    // \t\t\tDatum: ").concat(otvorenaPorudzbina.datum, "\n    //          Status: ").concat(otvorenaPorudzbina.status, "\n    // \t\t\tNaru\u010Deno:\n    // \t\t\t ").concat(otvorenaPorudzbina.stavke, "\n    // \t\t\n    // \t\t\t\n    \n    // \t\t\tUkupna za naplatu: 2720\n    ");
+    var cena = 0;
+    var out = " \n        Porudzbina broj: ".concat(otvorenaPorudzbina.id, " <br>\n        Klijent: ").concat(otvorenaPorudzbina.imeKlijenta, " <br>\n        Datum: ").concat(otvorenaPorudzbina.datum, " <br>\n        Naru\u010Deno:<br>");
+    for (var i = 0; i < otvorenaPorudzbina.stavke.length; i++) {
+        cena += otvorenaPorudzbina.stavke[i].stavkaJelovnika.cena * otvorenaPorudzbina.stavke[i].kolicina;
+        out += "\n            ".concat(otvorenaPorudzbina.stavke[i].stavkaJelovnika.naziv, " x").concat(otvorenaPorudzbina.stavke[i].kolicina, "<br>\n        ");
+    }
+    out += "Ukupna za naplatu:<br>".concat(cena, "din");
+    p.innerHTML += out;
     otvorenaPorudzbina = null;
 }
 function otkaziPorudzbinu() {
     otvorenaPorudzbina.status = 'Otkazana';
     skracenica();
 }
-// Implementirati funkciju otkaziPorudzbinu.
-// 		-	nema parametre
-// 		-	nema povratnu vrednost
-// 		Menja status promenljive otkaziPorudzbinu na "Otkazana"
-// 		Krije, omogucava, i resetuje vrednost pormenljive kao i metoda zatvoriPorudzbinu.
-// 		Tj. radi isto kao i metoda zatvoriPorudzbinu osim ispisa racuna.
 window.onload = function () {
     ucitajPodatke();
     aktivanRestoran.refreshJelovnik();

@@ -27,7 +27,7 @@ class Restoran {
         let out: string = '';
         for (let i = 0; i < this._jelovnik.length; i++) {
             const spanJelovnik = this._jelovnik[i];
-            out = `
+            out += `
             <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-start" onclick="clickedMenu(${spanJelovnik.id})">
                 <div class="ms-2 me-auto fw-bold"> ${spanJelovnik.naziv} ${spanJelovnik.cena}</div>
                 <span class="badge bg-primary rounded-pill" id="spanJelovnik${spanJelovnik.id}"></span>

@@ -58,13 +58,13 @@ function skracenica(): void {
 function zatvoriPorudzbinu(): void {
     skracenica();
     const p = document.getElementById('ispis');
-    let cena:number = 0;
+    let cena: number = 0;
     let out = ` 
         Porudzbina broj: ${otvorenaPorudzbina.id} <br>
         Klijent: ${otvorenaPorudzbina.imeKlijenta} <br>
         Datum: ${otvorenaPorudzbina.datum} <br>
         Naručeno:<br>`;
-    for(let i = 0; i < otvorenaPorudzbina.stavke.length; i++) {
+    for (let i = 0; i < otvorenaPorudzbina.stavke.length; i++) {
         cena += otvorenaPorudzbina.stavke[i].stavkaJelovnika.cena * otvorenaPorudzbina.stavke[i].kolicina;
         out += `
             ${otvorenaPorudzbina.stavke[i].stavkaJelovnika.naziv} x${otvorenaPorudzbina.stavke[i].kolicina}<br>
@@ -80,25 +80,13 @@ function otkaziPorudzbinu(): void {
     skracenica();
 }
 
+function zlatniKlijenti() {
+    document.getElementById("ispis").innerHTML = aktivanRestoran.zlatniKlijenti();
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function jelaPoKlijentu() {
+    document.getElementById("ispis").innerHTML = aktivanRestoran.najProfitabilnijiTipPoKlijentu();
+}
 
 
 

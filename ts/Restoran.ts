@@ -53,68 +53,90 @@ class Restoran {
 
 
     public zlatniKlijenti(): string {
-        let bodovi: number = 0;
-        let brojac: number = 0;
-        for (let i = 0; i < this._porudzbine.length; i++) {
-            if (this._porudzbine[i].status == 'Zatvorena') {
-                for (let j = 0; j < this._jelovnik.length; i++) {
-                    if (this._jelovnik[i].tip == 'Predjelo') {
-                        brojac++;
-                        bodovi = brojac * 1;
-                    }
-                    else if (this._jelovnik[i].tip == 'Glavno jelo') {
-                        brojac++;
-                        bodovi = brojac * 3;
-                    }
-                    else if (this._jelovnik[i].tip == 'Desert') {
-                        brojac++;
-                        bodovi = brojac * 1;
-                    }
-                }
+        const filtrirajPoStatusu = this._porudzbine.filter(p => p.status == 'Zatvorena');
+
+        let grupisanoNacin = filtrirajPoStatusu.reduce((p, el) => {
+            if (!(el.imeKlijenta in p)) {
+                p[el.imeKlijenta] = [];
             }
-        }
-        if (bodovi < Restoran.BODOVI_ZA_GOLD) return;
-        return 'Gold';
+            p[el.imeKlijenta].push(...el.stavke);
+            return p;
+        }, {});
+        console.log(grupisanoNacin);
+
+        const kljucevi = Object.keys(grupisanoNacin);
+
+        // kljucevi.forEach(kljuc => {
+        //     const kolicine = grupisanoNacin[kljuc].map(stavka => stavka.kolicina);
+        //     console.log(`Kolicine za kljuc ${kljuc}: ${kolicine}`);
+        //     // Ovde možeš raditi šta god želiš sa količinama za svaki ključ
+        // });
+        kljucevi.forEach(kljuc => {
+            const kolicine = grupisanoNacin[kljuc].reduce((sum, stavka) => sum + stavka._kolicina, 0);
+            console.log(`Ukupna količina za ${kljuc}: ${kolicine}`);
+            // Ovde možeš raditi šta god želiš sa ukupnom količinom za svakog klijenta
+        });
+        return;
     }
+
+    // public zlatniKlijenti(): string {
+
+    //     let skorKlijenta = {};
+
+    //     for (let porudzbina of this._porudzbine) {
+    //         if (porudzbina.status != "Zatvorena")
+    //             continue;
+
+    //         if (!(porudzbina.imeKlijenta in skorKlijenta)) {
+    //             skorKlijenta[porudzbina.imeKlijenta] = 0;
+    //         }
+
+    //         for (let stavka of porudzbina.stavke) {
+    //             skorKlijenta[porudzbina.imeKlijenta] += Restoran.BODOVI_PO_TIPU[stavka.stavkaJelovnika.tip] * stavka.kolicina;
+    //         }
+    //     }
+
+    //     let hasGold = false;
+    //     let out = "Spisak GOLD klijenata: <br/>";
+    //     for (let klijent in skorKlijenta) {
+    //         if (skorKlijenta[klijent] > Restoran.BODOVI_ZA_GOLD) {
+    //             hasGold = true;
+    //             out += `${klijent} sa ${skorKlijenta[klijent]} ukupno bodova. <br/>`
+    //         }
+    //     }
+
+    //     if (hasGold)
+    //         return out;
+
+
+    //     return "Restoran trenutno nema GOLD klijente";
+    // }
+
+
 
     najProfitabilnijiTipPoKlijentu(): string {
         return;
     }
 
-    // Metoda vraca spisak najprofitabilnijeg tipa jela po klijentu kao string:
+    // public zlatniKlijenti(): string
 
-    // 	Pera Peric je najviše potrošio na tip "Glavno jelo" (3820) <br>
-    // 	Mika Mikic je najviše potrošio na tip "Predjelo" (1280) <br>
-    // 	Zika Zikic je najviše potrošio na tip "Glavno jelo" (2500) <br>
-    // 	Petar Petrovic je najviše potrošio na tip "Predjelo" (460) <br>
-    // 	Ljubo Ljubic je najviše potrošio na tip "Predjelo" (1060) <br>
+    // 	Metoda vraca spisak GOLD klijenta restorana kao string:
 
-    // Za svakog klijenta, za svaku zatvorenu porudzbinu, se sumira koliko je potrosio
-    // novca za svaki tip StavkeJelovnika. Nakon toga za svakog klijenta se odredjuje koji
-    // tip ima maksimalnu vrednost i on se racuna kao najprofitabilnija za tog klijenta.
-    // Npr. sa testinm podacima dobicemo sledece vrednosti: 
+    // 		Spisak GOLD klijenata: <br>
+    // 		Pera Peric sa 11 ukupno bodova. <br>
 
-    // 	{
-    // 	   "Pera Peric":{
-    // 		  "Predjelo":530,
-    // 		  "Glavno jelo":3820,
-    // 		  "Desert":1690
-    // 	   },
-    // 	   "Mika Mikic":{
-    // 		  "Predjelo":1280
-    // 	   },
-    // 	   "Zika Zikic":{
-    // 		  "Glavno jelo":2500,
-    // 		  "Desert":910,
-    // 		  "Predjelo":460
-    // 	   },
-    // 	   "Petar Petrovic":{
-    // 		  "Predjelo":460
-    // 	   },
-    // 	   "Ljubo Ljubic":{
-    // 		  "Predjelo":1060
-    // 	   }
-    // 	}
+    // 	GOLD klijenti su svi klijenti koji su u svojim porudzbinama sa statusom "Zatvorena" 
+    // 	akumulirali broj bodova veci od staticke promenljive Restoran.BODOVI_ZA_GOLD.
+    // 	Bodovi se racunaju tako sto se sumiraju bodovi na osnovu tipa StavkeJelovnika za svaku stavku 
+    // 	(pomnozenu sa kolicinom) iz svake zatvorene porudzbine.
+    // 	Bodovi za tip su dati u statickoj promenljivoj BODOVI_PO_TIPU.
+
+    // 	Npr. u primeru racuna iznad:
+
+    // 	Predjelo "Pohovani šampinjoni u sosu od gorgonzole" je naruceno dva puta -> 1 * 2 == 2 
+    // 	Glavno jelo "Karađorđeva šnicla" je naruceno jednom -> 3 * 1 == 3
+    // 	Desert "Krempita" je narucena jednom -> 1 * 1 == 1
+    // 	Ukupno bodova za ovu porudzbinu klijent "Aleksandar" je 2 + 3 + 1 == 6
 
     // Iz kojih mozemo da zakljucimo na koji tip su su klijenti najvise novca potrosili.
 

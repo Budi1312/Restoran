@@ -6,7 +6,7 @@
 class Restoran {
 
     static readonly BODOVI_PO_TIPU = { "Predjelo": 1, "Glavno jelo": 3, "Desert": 1 };
-    static readonly BODOVI_ZA_GOLD = 10;
+    static readonly BODOVI_ZA_GOLD = 1;
 
     private _naziv: string;
     private _jelovnik: StavkaJelovnika[];
@@ -51,33 +51,39 @@ class Restoran {
         return jelovnik;
     }
 
-
     public zlatniKlijenti(): string {
-        const filtrirajPoStatusu = this._porudzbine.filter(p => p.status == 'Zatvorena');
 
-        let grupisanoNacin = filtrirajPoStatusu.reduce((p, el) => {
-            if (!(el.imeKlijenta in p)) {
-                p[el.imeKlijenta] = [];
+        const klijenti = this._porudzbine.reduce((acc, klijent) => {
+            if (klijent.status !== "Zatvorena") return acc;
+            if (!acc[klijent.imeKlijenta]) {
+                acc[klijent.imeKlijenta] = [];
             }
-            p[el.imeKlijenta].push(...el.stavke);
-            return p;
+            klijent.stavke.forEach(stavka => {
+                if (!acc[klijent.imeKlijenta][stavka.stavkaJelovnika.tip]) {
+                    acc[klijent.imeKlijenta][stavka.stavkaJelovnika.tip] = 0;
+                }
+                acc[klijent.imeKlijenta][stavka.stavkaJelovnika.tip] += Restoran.BODOVI_PO_TIPU[stavka.stavkaJelovnika.tip] * stavka.kolicina;
+            });
+            return acc;
         }, {});
-        console.log(grupisanoNacin);
 
-        const kljucevi = Object.keys(grupisanoNacin);
+        let out: string = '';
+        Object.entries(klijenti).forEach(([kljuc, vrednost]: [string, {}]) => {
+            let ukupnoBodova: number = 0;
+            let klijent: string = '';
+            Object.entries(vrednost).forEach(([predjelo, bodovi]: [string, number]) => {
+                ukupnoBodova += bodovi;
+                klijent = kljuc;
+            });
 
-        // kljucevi.forEach(kljuc => {
-        //     const kolicine = grupisanoNacin[kljuc].map(stavka => stavka.kolicina);
-        //     console.log(`Kolicine za kljuc ${kljuc}: ${kolicine}`);
-        //     // Ovde možeš raditi šta god želiš sa količinama za svaki ključ
-        // });
-        kljucevi.forEach(kljuc => {
-            const kolicine = grupisanoNacin[kljuc].reduce((sum, stavka) => sum + stavka._kolicina, 0);
-            console.log(`Ukupna količina za ${kljuc}: ${kolicine}`);
-            // Ovde možeš raditi šta god želiš sa ukupnom količinom za svakog klijenta
+            if (ukupnoBodova > Restoran.BODOVI_ZA_GOLD) {
+                return out += `U spisak za gold klijente upisali su se ${klijent} ukupno je osvojio ${ukupnoBodova}<br/>`
+            }
+
         });
-        return;
+        return out;
     }
+
 
     // public zlatniKlijenti(): string {
 
@@ -113,32 +119,203 @@ class Restoran {
     // }
 
 
+    // najProfitabilnijiTipPoKlijentu(): string {
+    //     const klijenti = this._porudzbine.reduce((acc, porudzbina) => {
+    //         if (porudzbina.status !== 'Zatvorena') return acc;
+
+    //         if (!acc[porudzbina.imeKlijenta]) {
+    //             acc[porudzbina.imeKlijenta] = {};
+    //         }
+
+    //         porudzbina.stavke.forEach(stavka => {
+    //             if (!acc[porudzbina.imeKlijenta][stavka.stavkaJelovnika.tip]) {
+    //                 acc[porudzbina.imeKlijenta][stavka.stavkaJelovnika.tip] = 0;
+    //             }
+    //             acc[porudzbina.imeKlijenta][stavka.stavkaJelovnika.tip] += stavka.stavkaJelovnika.cena * stavka.kolicina;
+    //         });
+    //         return acc;
+    //     }, {});
+
+    //     const out = Object.entries(klijenti).map(([klijent, potroseno]) => {
+    //         let maxTip = '';
+    //         let maxCena = Number.NEGATIVE_INFINITY;
+    //         Object.entries(potroseno).forEach(([tip, cena]) => {
+    //             if (cena > maxCena) {
+    //                 maxCena = cena;
+    //                 maxTip = tip;
+    //             }
+    //         });
+    //         return `${klijent} je najviše potrošio na tip "${maxTip}" (${maxCena})`;
+    //     }).join('<br/>');
+
+    //     console.log(klijenti);
+    //     return out;
+    // }
+
+
+
+    // najProfitabilnijiTipPoKlijentu(): string {
+    //     const klijenti = this._porudzbine.reduce((acc, klijent) => {
+    //         if (klijent.status !== 'Zatvorena') return acc;
+
+    //         if (!acc[klijent.imeKlijenta]) {
+    //             acc[klijent.imeKlijenta] = {};
+    //         }
+
+    //         klijent.stavke.forEach(stavka => {
+    //             if (!acc[klijent.imeKlijenta][stavka.stavkaJelovnika.tip]) {
+    //                 acc[klijent.imeKlijenta][stavka.stavkaJelovnika.tip] = 0;
+    //             }
+    //             acc[klijent.imeKlijenta][stavka.stavkaJelovnika.tip] += stavka.stavkaJelovnika.cena * stavka.kolicina;
+    //         });
+    //         return acc;
+    //     }, {})
+    //     console.log(klijenti);
+
+    //     const out = Object.entries(klijenti).map(([klijent, predjelo]: [string, number]) => {
+    //         let maxRacun: number = Number.NEGATIVE_INFINITY;
+    //         let maxTip: string;
+    //         Object.entries(predjelo).forEach(([tip, racun]) => {
+    //             if (maxRacun < racun) {
+    //                 maxRacun = racun;
+    //                 maxTip = tip;
+    //             }
+    //         });
+    //         return `${klijent} je najviše potrošio na tip ${maxTip} (${maxRacun})`;
+    //     }).join('<br/>');
+    //     return out;
+
+
+    // }
+
+
+
+
 
     najProfitabilnijiTipPoKlijentu(): string {
-        return;
+        const imenima = this._porudzbine.reduce((acc, imena) => {
+            if (imena.status !== 'Zatvorena') return acc;
+            if (!acc[imena.imeKlijenta]) {
+                acc[imena.imeKlijenta] = [];
+            }
+            imena.stavke.forEach(stavka => {
+                if (!acc[imena.imeKlijenta][stavka.stavkaJelovnika.tip]) {
+                    acc[imena.imeKlijenta][stavka.stavkaJelovnika.tip] = 0;
+                }
+                acc[imena.imeKlijenta][stavka.stavkaJelovnika.tip] += stavka.kolicina * stavka.stavkaJelovnika.cena;
+            });
+            return acc;
+        }, {});
+        console.log(imenima);
+        let rezultat: string = '';
+
+        Object.entries(imenima).forEach(([kljuc, nizJeloCena]: [string, {}]) => {
+            let maxIme: string = '';
+            let maxCena: number = 0;
+            Object.entries(nizJeloCena).forEach(([jelo, cena]: [string, number]) => {
+                if (maxCena < cena) {
+                    maxCena = cena;
+                    maxIme = jelo;
+                }
+            });
+            rezultat += `${kljuc} je najviše potrošio/la na ${maxIme} (cena: ${maxCena}).<br/>`;
+        });
+
+        return rezultat;
     }
 
-    // public zlatniKlijenti(): string
+    // const bolnicama = bolnice.reduce((acc, { grad, pacijenti }) => {
+    //     acc[grad] = pacijenti.filter(p => p.pcrTest === 'Pozitivan');
+    //     return acc;
+    // }, {});
 
-    // 	Metoda vraca spisak GOLD klijenta restorana kao string:
+    // najProfitabilnijiTipPoKlijentu(): string
 
-    // 		Spisak GOLD klijenata: <br>
-    // 		Pera Peric sa 11 ukupno bodova. <br>
+    // Metoda vraca spisak najprofitabilnijeg tipa jela po klijentu kao string:
 
-    // 	GOLD klijenti su svi klijenti koji su u svojim porudzbinama sa statusom "Zatvorena" 
-    // 	akumulirali broj bodova veci od staticke promenljive Restoran.BODOVI_ZA_GOLD.
-    // 	Bodovi se racunaju tako sto se sumiraju bodovi na osnovu tipa StavkeJelovnika za svaku stavku 
-    // 	(pomnozenu sa kolicinom) iz svake zatvorene porudzbine.
-    // 	Bodovi za tip su dati u statickoj promenljivoj BODOVI_PO_TIPU.
+    //     Pera Peric je najviše potrošio na tip "Glavno jelo" (3820) <br>
+    //     Mika Mikic je najviše potrošio na tip "Predjelo" (1280) <br>
+    //     Zika Zikic je najviše potrošio na tip "Glavno jelo" (2500) <br>
+    //     Petar Petrovic je najviše potrošio na tip "Predjelo" (460) <br>
+    //     Ljubo Ljubic je najviše potrošio na tip "Predjelo" (1060) <br>
 
-    // 	Npr. u primeru racuna iznad:
+    // Za svakog klijenta, za svaku zatvorenu porudzbinu, se sumira koliko je potrosio
+    // novca za svaki tip StavkeJelovnika. Nakon toga za svakog klijenta se odredjuje koji
+    // tip ima maksimalnu vrednost i on se racuna kao najprofitabilnija za tog klijenta.
+    // Npr. sa testinm podacima dobicemo sledece vrednosti: 
 
-    // 	Predjelo "Pohovani šampinjoni u sosu od gorgonzole" je naruceno dva puta -> 1 * 2 == 2 
-    // 	Glavno jelo "Karađorđeva šnicla" je naruceno jednom -> 3 * 1 == 3
-    // 	Desert "Krempita" je narucena jednom -> 1 * 1 == 1
-    // 	Ukupno bodova za ovu porudzbinu klijent "Aleksandar" je 2 + 3 + 1 == 6
+    //     {
+    //        "Pera Peric":{
+    //           "Predjelo":530,
+    //           "Glavno jelo":3820,
+    //           "Desert":1690
+    //        },
+    //        "Mika Mikic":{
+    //           "Predjelo":1280
+    //        },
+    //        "Zika Zikic":{
+    //           "Glavno jelo":2500,
+    //           "Desert":910,
+    //           "Predjelo":460
+    //        },
+    //        "Petar Petrovic":{
+    //           "Predjelo":460
+    //        },
+    //        "Ljubo Ljubic":{
+    //           "Predjelo":1060
+    //        }
+    //     }
 
     // Iz kojih mozemo da zakljucimo na koji tip su su klijenti najvise novca potrosili.
+
+
+
+    // public najProfitabilnijiTipPoKlijentu(): string {
+
+    //     let klijenti = {};
+
+    //     for (let porudzbina of this._porudzbine) {
+    //         if (porudzbina.status != "Zatvorena")
+    //             continue;
+
+    //         if (!(porudzbina.imeKlijenta in klijenti)) {
+    //             klijenti[porudzbina.imeKlijenta] = {};
+    //         }
+
+    //         for (let stavka of porudzbina.stavke) {
+    //             if (!(stavka.stavkaJelovnika.tip in klijenti[porudzbina.imeKlijenta])) {
+    //                 klijenti[porudzbina.imeKlijenta][stavka.stavkaJelovnika.tip] = 0;
+    //             }
+    //             klijenti[porudzbina.imeKlijenta][stavka.stavkaJelovnika.tip] += stavka.stavkaJelovnika.cena * stavka.kolicina;
+    //         }
+    //     }
+
+    //     let out = "";
+    //     for (let klijent in klijenti) {
+    //         let potroseno = klijenti[klijent];
+    //         let maxTip = "";
+    //         let maxCena = Number.NEGATIVE_INFINITY;
+    //         for (let tip in potroseno) {
+    //             if (potroseno[tip] > maxCena) {
+    //                 maxCena = potroseno[tip];
+    //                 maxTip = tip;
+    //             }
+    //         }
+
+    //         out += `${klijent} je najviše potrošio na tip "${maxTip}" (${maxCena}) <br/>`;
+
+    //     }
+
+    //     return out;
+    // }
+
+
+
+
+
+
+
+
 
     /**
      * Getter naziv
